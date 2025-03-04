@@ -1,0 +1,6 @@
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\bin\Debug\DLMS_DataAccess.dll
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\bin\Debug\DLMS_DataAccess.pdb
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\obj\Debug\DLMS_DataAccess.csproj.AssemblyReference.cache
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\obj\Debug\DLMS_DataAccess.csproj.CoreCompileInputs.cache
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\obj\Debug\DLMS_DataAccess.dll
+D:\C Sharp\Class Libraries\DLMS_DataAccess\DLMS_DataAccess\obj\Debug\DLMS_DataAccess.pdb
