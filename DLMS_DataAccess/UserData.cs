@@ -51,10 +51,13 @@ namespace DLMS_DataAccess
             DataTable dt = new DataTable();
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
             string query = "SELECT [UserID]\r\n" +
-                ",[PersonID]\r\n" +
+                ",Users.PersonID\r\n    " +
+                ",concat(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) as FullName" +
                 ",[UserName]\r\n" +
                 ",[IsActive]\r\n" +
-                "FROM [dvld].[dbo].[Users]\n" + SortingCondition;
+                "FROM [dvld].[dbo].[Users] \n" +
+                "join People on \n" +
+                "People.PersonID = Users.PersonID" + SortingCondition;
             SqlCommand command = new SqlCommand(query, connection);
 
             try
@@ -64,6 +67,62 @@ namespace DLMS_DataAccess
                 if (reader.HasRows)
                 {
                     dt.Load(reader);
+                    dt.Columns["FullName"].ColumnName = "Full Name";
+                    dt.Columns["IsActive"].ColumnName = "Is Active";
+                    dt.Columns["UserID"].ColumnName = "User ID";
+                    dt.Columns["PersonID"].ColumnName = "Person ID";
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dt;
+        }
+
+        private static string GetFilterConditionText(string filterkeyWord)
+        {
+            string filterCondition = CurrentFilterMode == FilterMode.PersonId ||
+                CurrentFilterMode == FilterMode.FullName ||
+                CurrentFilterMode == FilterMode.UserId ||
+                CurrentFilterMode == FilterMode.UserName ?
+                $"{CurrentFilterMode} like '%{filterkeyWord}%'" :
+                $"{CurrentFilterMode} = '{filterkeyWord}'";
+            return filterCondition.Length > 0 ? "\nwhere " + filterCondition : "";
+        }
+
+        public static DataTable GetFilteredUsers(string filterkeyWord)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query =
+                "select * from (\r\n\r\n\r\n\tSELECT [UserID]\r\n\t\t  " +
+                ",Users.PersonID\r\n\t\t  " +
+                ",concat(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) as FullName\r\n\t\t " +
+                " ,[UserName]\r\n\t\t  " +
+                ",[IsActive]\r\n\t  " +
+                "FROM [dvld].[dbo].[Users]\r\n\t  " +
+                "join people on people.PersonID = Users.PersonID\r\n\t  ) " +
+                "R1 \n "
+                + GetFilterConditionText(filterkeyWord) + SortingCondition;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    dt.Columns["FullName"].ColumnName = "Full Name";
+                    dt.Columns["IsActive"].ColumnName = "Is Active";
+                    dt.Columns["UserID"].ColumnName = "User ID";
+                    dt.Columns["PersonID"].ColumnName = "Person ID";
                 }
                 reader.Close();
             }
@@ -97,10 +156,16 @@ namespace DLMS_DataAccess
         public enum FilterMode
         {
             PersonId,
+            FullName,
             UserName,
             UserId,
             IsActive,
         };
+
+        public static void DisableSorting()
+        {
+            UserData.IsSortingUsed = false;
+        }
 
         public static FilterMode CurrentFilterMode;
 
@@ -260,6 +325,75 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return isFound;
+        }
+
+        private static readonly string GetUsersCountQuery = "select Count (*) as Count from (\r\n\r\n\r\n\t" +
+            "SELECT [UserID]\r\n\t\t  ," +
+            "Users.PersonID\r\n\t\t  ," +
+            "concat(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) as FullName\r\n\t\t  ," +
+            "[UserName]\r\n\t\t  ," +
+            "[IsActive]\r\n\t  " +
+            "FROM [dvld].[dbo].[Users]\r\n\t  " +
+            "join people on people.PersonID = Users.PersonID\r\n\t  ) R1";
+
+        public static int GetAllUsersCount()
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = GetUsersCountQuery;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
+        }
+
+        public static int GetFilteredUsersCount(string filterkeyWord)
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = GetUsersCountQuery + GetFilterConditionText(filterkeyWord);
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
         }
     }
 }

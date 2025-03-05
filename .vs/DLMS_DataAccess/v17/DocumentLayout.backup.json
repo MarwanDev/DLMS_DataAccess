@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "D:\\C Sharp\\Class Libraries\\DLMS_DataAccess\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1C84A75F-1CEF-4485-957E-602176F07974}|DLMS_DataAccess\\DLMS_DataAccess.csproj|d:\\c sharp\\class libraries\\dlms_dataaccess\\dlms_dataaccess\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1C84A75F-1CEF-4485-957E-602176F07974}|DLMS_DataAccess\\DLMS_DataAccess.csproj|solutionrelative:dlms_dataaccess\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1C84A75F-1CEF-4485-957E-602176F07974}|DLMS_DataAccess\\DLMS_DataAccess.csproj|d:\\c sharp\\class libraries\\dlms_dataaccess\\dlms_dataaccess\\persondata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1C84A75F-1CEF-4485-957E-602176F07974}|DLMS_DataAccess\\DLMS_DataAccess.csproj|solutionrelative:dlms_dataaccess\\persondata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,14 +23,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "D:\\C Sharp\\Class Libraries\\DLMS_DataAccess\\DLMS_DataAccess\\Class1.cs",
-              "RelativeDocumentMoniker": "DLMS_DataAccess\\Class1.cs",
-              "ToolTip": "D:\\C Sharp\\Class Libraries\\DLMS_DataAccess\\DLMS_DataAccess\\Class1.cs",
-              "RelativeToolTip": "DLMS_DataAccess\\Class1.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Title": "PersonData.cs",
+              "DocumentMoniker": "D:\\C Sharp\\Class Libraries\\DLMS_DataAccess\\DLMS_DataAccess\\PersonData.cs",
+              "RelativeDocumentMoniker": "DLMS_DataAccess\\PersonData.cs",
+              "ToolTip": "D:\\C Sharp\\Class Libraries\\DLMS_DataAccess\\DLMS_DataAccess\\PersonData.cs",
+              "RelativeToolTip": "DLMS_DataAccess\\PersonData.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-14T09:37:00.326Z",
+              "WhenOpened": "2025-02-27T07:25:45.881Z",
               "EditorCaption": ""
             }
           ]

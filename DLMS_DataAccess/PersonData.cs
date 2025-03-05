@@ -168,7 +168,7 @@ namespace DLMS_DataAccess
             return filterCondition.Length > 0 ? "\nwhere " + filterCondition : "";
         }
 
-        public static DataTable FilterPeople(string filterkeyWord)
+        public static DataTable GetFilteredPeople(string filterkeyWord)
         {
             DataTable dt = new DataTable();
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
