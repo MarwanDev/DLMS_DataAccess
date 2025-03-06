@@ -46,6 +46,46 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
+        public static bool GetUserDataByPersonId(ref int id, ref string userName, ref string passwrod, ref bool isActive, int personId)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT [UserID]\r\n      ,[PersonID]\r\n      ,[UserName]\r\n      ,[Password]\r\n      ,[IsActive]\r\n " +
+                " FROM [dvld].[dbo].[Users]\n" +
+                "Where PersonId = @PersonId";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@PersonId", personId);
+
+            try
+            {
+                // The record was found
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    isFound = true;
+                    userName = (string)reader["UserName"];
+                    passwrod = (string)reader["Password"];
+                    isActive = (bool)reader["IsActive"];
+                    personId = (int)reader["userId"];
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
         public static DataTable GetAllUsers()
         {
             DataTable dt = new DataTable();

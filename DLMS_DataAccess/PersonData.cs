@@ -68,6 +68,69 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
+        public static bool GetPersonInfoByNationalNo(ref int id, ref string firstName, ref string secondName, ref string thirdName,
+            ref string lastName, string nationalNo, ref DateTime dateOfBirth, ref byte gender, ref string email,
+            ref string phone, ref string address, ref int nationalityCountryID, ref string imagePath, ref string country)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT *, Countries.CountryName as Country FROM People \n" +
+                "join Countries on Countries.CountryID = People.NationalityCountryID \n" +
+                "WHERE NationalNo = @NationalNo";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@NationalNo", nationalNo);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+                    id = (int)reader["PersonId"];
+                    firstName = (string)reader["FirstName"];
+                    secondName = (string)reader["SecondName"];
+                    thirdName = (string)reader["ThirdName"];
+                    lastName = (string)reader["LastName"];
+                    nationalNo = (string)reader["NationalNo"];
+                    gender = (byte)reader["Gender"];
+                    email = (string)reader["Email"];
+                    phone = (string)reader["Phone"];
+                    address = (string)reader["Address"];
+                    dateOfBirth = (DateTime)reader["DateOfBirth"];
+                    nationalityCountryID = (int)reader["NationalityCountryID"];
+                    country = (string)reader["country"];
+
+                    //imagePath: allows null in database so we should handle null
+                    if (reader["ImagePath"] != DBNull.Value)
+                    {
+                        imagePath = (string)reader["ImagePath"];
+                    }
+                    else
+                    {
+                        imagePath = "";
+                    }
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
 
         private static readonly string getPeopleCountQuery = "select Count(*) as count from (\n" +
             "SELECT [PersonID]\r\n      ,[NationalNo],[FirstName]\r\n  " +
