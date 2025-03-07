@@ -67,7 +67,7 @@ namespace DLMS_DataAccess
                     userName = (string)reader["UserName"];
                     passwrod = (string)reader["Password"];
                     isActive = (bool)reader["IsActive"];
-                    personId = (int)reader["userId"];
+                    id = (int)reader["userId"];
                 }
                 else
                 {
