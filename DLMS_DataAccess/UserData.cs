@@ -276,6 +276,36 @@ namespace DLMS_DataAccess
             return (rowsAffected > 0);
         }
 
+        public static string GetUserPassword(int userId)
+        {
+            string password = "";
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = $"Select Password from Users\n Where UserId = {userId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    password = (string)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return password;
+        }
+
         public static bool DeleteUser(int userId)
         {
             int rowsAffected = 0;
