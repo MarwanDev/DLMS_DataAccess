@@ -249,7 +249,6 @@ namespace DLMS_DataAccess
 
             string query = @"Update  Users  
                             set UserName = @UserName, 
-                                UserID = @UserID, 
                                 PersonID = @PersonID, 
                                 Password = @Password, 
                                 IsActive = @IsActive
