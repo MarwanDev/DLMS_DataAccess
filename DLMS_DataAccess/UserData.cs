@@ -276,6 +276,34 @@ namespace DLMS_DataAccess
             return (rowsAffected > 0);
         }
 
+        public static bool ChangeUserPassword(int id, string password)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"Update  Users  
+                            set Password = @Password
+                                where UserID = @UserID";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@UserID", id);
+            command.Parameters.AddWithValue("@Password", password);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
+        }
+
         public static string GetUserPassword(int userId)
         {
             string password = "";
