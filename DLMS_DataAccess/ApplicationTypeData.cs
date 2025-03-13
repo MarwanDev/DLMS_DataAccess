@@ -13,7 +13,7 @@ namespace DLMS_DataAccess
             string query = "SELECT  [ApplicationTypeID]\r\n   " +
                 ",[ApplicationTypeTitle]\r\n    " +
                 ",[ApplicationFees]\r\n " +
-                "FROM [dvld].[dbo].[ApplicationTypes]";
+                "FROM [dvld].[dbo].[ApplicationTypes]" + SortingCondition;
             SqlCommand command = new SqlCommand(query, connection);
 
             try
@@ -38,6 +38,55 @@ namespace DLMS_DataAccess
             }
 
             return dt;
+        }
+
+        public static string SortingText { set; get; }
+        private static string sortingType = "DESC";
+        private static string currentSortingText;
+        public static bool IsSortingUsed { get; set; }
+        private static string GetSortingCommand()
+        {
+            sortingType = currentSortingText == SortingText ? sortingType == "ASC" ? "DESC" : "ASC" : "ASC";
+            currentSortingText = SortingText;
+            return $"\nORDER BY {SortingText} {sortingType}";
+        }
+
+        public static void ApplySorting()
+        {
+            SortingCondition = IsSortingUsed ? GetSortingCommand() : "";
+        }
+
+        private static string SortingCondition;
+
+        public static int GetAllApplicationTypesCount()
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "Select count (*) from\n " +
+                "ApplicationTypes";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
         }
 
         public static bool GetApplicationTypeById(int id, ref string title, ref double fees)
