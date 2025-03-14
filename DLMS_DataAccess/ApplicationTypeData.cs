@@ -89,11 +89,11 @@ namespace DLMS_DataAccess
             return count;
         }
 
-        public static bool GetApplicationTypeById(int id, ref string title, ref double fees)
+        public static bool GetApplicationTypeDataById(int id, ref string title, ref decimal fees)
         {
             bool isFound = false;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-            string query = "SELECT  [ApplicationTypeID]\r\n   " +
+            string query = "SELECT [ApplicationTypeID]\r\n   " +
                 ",[ApplicationTypeTitle]\r\n" +
                 ",[ApplicationFees]\r\n" +
                 "FROM [dvld].[dbo].[ApplicationTypes]\n" +
@@ -110,7 +110,7 @@ namespace DLMS_DataAccess
                 {
                     isFound = true;
                     title = (string)reader["ApplicationTypeTitle"];
-                    fees = (double)reader["ApplicationFees"];
+                    fees = (decimal)reader["ApplicationFees"];
                 }
                 else
                 {
@@ -129,18 +129,18 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
-        public static bool UpdateApplicationType(int id, string title, double fees)
+        public static bool UpdateApplicationType(int id, string title, decimal fees)
         {
             int rowsAffected = 0;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
 
             string query = @"Update  ApplicationTypes  
                             set ApplicationTypeTitle = @ApplicationTypeTitle, 
-                                ApplicationTypeFees = @ApplicationTypeFees, 
+                                ApplicationFees = @ApplicationFees
                                 where ApplicationTypeID = @ApplicationTypeID";
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@ApplicationTypeID", id);
-            command.Parameters.AddWithValue("@ApplicationTypeFees", fees);
+            command.Parameters.AddWithValue("@ApplicationFees", fees);
             command.Parameters.AddWithValue("@ApplicationTypeTitle", title);
 
             try
