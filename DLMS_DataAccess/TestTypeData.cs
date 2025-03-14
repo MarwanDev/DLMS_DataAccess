@@ -140,7 +140,7 @@ namespace DLMS_DataAccess
 
             string query = @"Update  [TestTypes]  
                             set TestTypeTitle = @TestTypeTitle, 
-                                TestTypeFees = @TestTypeFees
+                                TestTypeFees = @TestTypeFees,
                                 TestTypeDescription = @TestTypeDescription
                                 where TestTypeID = @TestTypeID";
             SqlCommand command = new SqlCommand(query, connection);
