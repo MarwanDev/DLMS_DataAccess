@@ -4,7 +4,7 @@ using System.Data;
 
 namespace DLMS_DataAccess
 {
-    public class ApplicationTypeData
+    public class ApplicationTypeData : Data
     {
         public static DataTable GetAllApplicationTypes()
         {
@@ -39,24 +39,6 @@ namespace DLMS_DataAccess
 
             return dt;
         }
-
-        public static string SortingText { set; get; }
-        private static string sortingType = "DESC";
-        private static string currentSortingText;
-        public static bool IsSortingUsed { get; set; }
-        private static string GetSortingCommand()
-        {
-            sortingType = currentSortingText == SortingText ? sortingType == "ASC" ? "DESC" : "ASC" : "ASC";
-            currentSortingText = SortingText;
-            return $"\nORDER BY {SortingText} {sortingType}";
-        }
-
-        public static void ApplySorting()
-        {
-            SortingCondition = IsSortingUsed ? GetSortingCommand() : "";
-        }
-
-        private static string SortingCondition;
 
         public static int GetAllApplicationTypesCount()
         {

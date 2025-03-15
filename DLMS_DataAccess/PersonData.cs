@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace DLMS_DataAccess
 {
-    public class PersonData
+    public class PersonData : Data
     {
         public static bool GetPersonInfoById(int id, ref string firstName, ref string secondName, ref string thirdName,
             ref string lastName, ref string nationalNo, ref DateTime dateOfBirth, ref byte gender, ref string email,
@@ -181,18 +181,6 @@ namespace DLMS_DataAccess
             return dt;
         }
 
-        public static string SortingText { set; get; }
-        private static string sortingType = "DESC";
-        private static string currentSortingText;
-        public static bool IsSortingUsed { get; set; }
-        private static string GetSortingCommand()
-        {
-            sortingType = currentSortingText == SortingText ? sortingType == "ASC" ? "DESC" : "ASC" : "ASC";
-            currentSortingText = SortingText;
-            return $"\nORDER BY {SortingText} {sortingType}";
-        }
-        private static string SortingCondition;
-
         public enum FilterMode
         {
             PersonId,
@@ -209,11 +197,6 @@ namespace DLMS_DataAccess
         };
 
         public static FilterMode CurrentFilterMode;
-
-        public static void ApplySorting()
-        {
-            SortingCondition = IsSortingUsed ? GetSortingCommand() : "";
-        }
 
         private static string GetFilterConditionText(string filterkeyWord)
         {
