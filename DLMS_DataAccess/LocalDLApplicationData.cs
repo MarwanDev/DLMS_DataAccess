@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace DLMS_DataAccess
@@ -38,6 +39,42 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return localDLAPPicationId;
+        }
+
+        public static int GetApplicationIdForSamePersonAndLicenceClass(int licenceClassId, int applicantPersonId)
+        {
+            int localDLApplicationId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = $"SELECT top 1 LocalDrivingLicenseApplicationID\r\n  " +
+                $"FROM [dvld].[dbo].[Applications] join\r\n  " +
+                $"[dbo].[LocalDrivingLicenseApplications] on " +
+                $"[Applications].[ApplicationID] = [LocalDrivingLicenseApplications].[ApplicationID]\r\n  " +
+                $"where [LocalDrivingLicenseApplications].LicenseClassID = {licenceClassId} and\r\n  " +
+                $"ApplicationStatus <> 0 and\r\n  " +
+                $"ApplicantPersonID = {applicantPersonId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    localDLApplicationId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return localDLApplicationId;
         }
     }
 }
