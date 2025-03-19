@@ -11,7 +11,7 @@ namespace DLMS_DataAccess
         {
             sortingType = currentSortingText == SortingText ? sortingType == "ASC" ? "DESC" : "ASC" : "ASC";
             currentSortingText = SortingText;
-            return $"\nORDER BY {SortingText} {sortingType}";
+            return $"\nORDER BY '{SortingText}' {sortingType}";
         }
         public static string SortingCondition;
 

@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace DLMS_DataAccess
 {
-    public class LocalDLApplicationData
+    public class LocalDLApplicationData : Data
     {
         public static int AddNewLocalDLApplication(int applicantPersonId,
             DateTime applicationDate, int applicationTypeId, int applicationStatus,
@@ -75,6 +75,72 @@ namespace DLMS_DataAccess
             }
 
             return localDLApplicationId;
+        }
+
+        private static readonly string GetAllLocalApplicationsQuery = "SELECT * FROM (\r\n    " +
+            "SELECT \r\n        " +
+            "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID AS 'L.D.L.APP.ID',\r\n        " +
+            "ClassName AS 'Driving Class',\r\n        " +
+            "NationalNo AS 'National No.',\r\n        " +
+            "CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS FullName,\r\n        " +
+            "[ApplicationDate] AS 'Application Date',\r\n\r\n        " +
+            "(SELECT COUNT(*) \r\n         " +
+            "FROM Tests \r\n         " +
+            "JOIN TestAppointments ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n         " +
+            "WHERE TestAppointments.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID\r\n           " +
+            "AND Tests.TestResult = 1) AS 'Passed Tests',\r\n\r\n        " +
+            "CASE\r\n            " +
+            "WHEN [ApplicationStatus] = 0 THEN 'Cancelled'\r\n            " +
+            "WHEN [ApplicationStatus] = 1 THEN 'New'\r\n            " +
+            "WHEN [ApplicationStatus] = 2 THEN 'In Progress'\r\n            " +
+            "WHEN [ApplicationStatus] = 3 THEN 'Complete'\r\n        " +
+            "END AS 'Status'\r\n        \r\n    " +
+            "FROM LocalDrivingLicenseApplications \r\n    " +
+            "JOIN [dvld].[dbo].[Applications] \r\n        " +
+            "ON LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n    " +
+            "JOIN People \r\n        ON People.PersonID = Applications.ApplicantPersonID\r\n    " +
+            "LEFT JOIN LicenseClasses \r\n        " +
+            "ON LicenseClasses.LicenseClassID = LocalDrivingLicenseApplications.LicenseClassID\r\n    " +
+            "LEFT JOIN TestAppointments \r\n        " +
+            "ON TestAppointments.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID\r\n    " +
+            "LEFT JOIN Tests \r\n        " +
+            "ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n\t\tGROUP BY \r\n    " +
+            "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID,\r\n    " +
+            "ClassName,\r\n    " +
+            "NationalNo,\r\n    " +
+            "People.FirstName, " +
+            "People.SecondName, " +
+            "People.ThirdName, " +
+            "People.LastName,\r\n    " +
+            "ApplicationDate,\r\n    " +
+            "ApplicationStatus\r\n) r1";
+
+        public static DataTable GetAllLocalDLApplications()
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = GetAllLocalApplicationsQuery + SortingCondition;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dt;
         }
     }
 }
