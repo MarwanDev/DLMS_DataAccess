@@ -142,5 +142,44 @@ namespace DLMS_DataAccess
 
             return dt;
         }
+
+        public static string CurrentFilter;
+
+        private static string GetFilterConditionText(string filterkeyWord)
+        {
+            string filterCondition = CurrentFilter == "L.D.L.APP.ID" ||
+                CurrentFilter == "National No." || CurrentFilter == "First Name" ?
+                $"\"{CurrentFilter}\" like '%{filterkeyWord}%'" :
+                $"\"{CurrentFilter}\" = '{filterkeyWord}'";
+            return filterCondition.Length > 0 ? "\nwhere " + filterCondition : "";
+        }
+
+        public static DataTable GetFilteredLocalDLApplications(string filterkeyWord)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = GetAllLocalApplicationsQuery + GetFilterConditionText(filterkeyWord) + SortingCondition;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dt;
+        }
     }
 }
