@@ -5,8 +5,8 @@ namespace DLMS_DataAccess
 {
     public class ApplicationData
     {
-        public static int AddNewApplication(int applicantPersonId, 
-            DateTime applicationDate, int applicationTypeId, int applicationStatus, 
+        public static int AddNewApplication(int applicantPersonId,
+            DateTime applicationDate, int applicationTypeId, int applicationStatus,
             DateTime lastStatusDate, decimal paidFees, int createdByUserId)
         {
             int applicationId = -1;
