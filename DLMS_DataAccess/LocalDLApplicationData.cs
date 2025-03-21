@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
+using System.Security.Policy;
 
 namespace DLMS_DataAccess
 {
@@ -278,6 +280,42 @@ namespace DLMS_DataAccess
             }
 
             return count;
+        }
+
+        public static bool CancelLocalDLApplication(int localDLApplicationId)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"UPDATE
+                                A
+                            SET
+                                A.ApplicationStatus = 0
+                            FROM
+                                Applications AS A
+                                INNER JOIN LocalDrivingLicenseApplications AS L
+                                ON L.ApplicationID = A.ApplicationID
+                            WHERE
+                                L.LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", localDLApplicationId);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
         }
     }
 }
