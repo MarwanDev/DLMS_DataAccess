@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Net;
-using System.Security.Policy;
 
 namespace DLMS_DataAccess
 {
@@ -316,6 +314,99 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return (rowsAffected > 0);
+        }
+
+        public static bool UpdateLocalDLApplication(int id, int licenceClassId)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"Update  LocalDrivingLicenseApplications  
+                            set LicenseClassID = @LicenseClassID    
+                                where LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", id);
+            command.Parameters.AddWithValue("@LicenseClassID", licenceClassId);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
+        }
+
+        public static bool GetLocalDLApplicationInfoById(int id, ref int applicantPersonID, ref DateTime applicationDate,
+            ref byte applicationStatus, ref decimal paidFees, ref string createdByUserName, ref int licenceClassID)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "select \r\n" +
+                "LocalDrivingLicenseApplicationID,\r\n" +
+                "ApplicantPersonID,\r\n" +
+                //"Applications.ApplicationTypeID,\r\n" +
+                "ApplicationStatus,\r\n" +
+                //"LastStatusDate,\r\n" +
+                "ApplicationDate,\r\n" +
+                "PaidFees,\r\n" +
+                //"CreatedByUserID,\r\n" +
+                "LocalDrivingLicenseApplications.LicenseClassID,\r\n" +
+                //"CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS 'Full Name',\r\n" +
+                //"ApplicationTypeTitle,\r\n" +
+                "UserName\r\n" +
+                //"ClassName\r\n\r\n" +
+                "from LocalDrivingLicenseApplications join Applications \r\n" +
+                "on Applications.ApplicationID = LocalDrivingLicenseApplications.ApplicationID join ApplicationTypes on\r\n" +
+                "Applications.ApplicationTypeID = ApplicationTypes.ApplicationTypeID join People on\r\n" +
+                "People.PersonID = Applications.ApplicantPersonID join Users on\r\n" +
+                "Users.UserID = Applications.CreatedByUserID join LicenseClasses on\r\n" +
+                "LocalDrivingLicenseApplications.LicenseClassID = LicenseClasses.LicenseClassID\r\n\r\n" +
+                "where LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID = @LocalDLApplicationId";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDLApplicationId", id);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+                    applicantPersonID = (int)reader["ApplicantPersonID"];
+                    applicationStatus = (byte)reader["ApplicationStatus"];
+                    applicationDate = (DateTime)reader["ApplicationDate"];
+                    paidFees = (decimal)reader["PaidFees"];
+                    createdByUserName = (string)reader["UserName"];
+                    licenceClassID = (int)reader["LicenseClassID"];
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
         }
     }
 }
