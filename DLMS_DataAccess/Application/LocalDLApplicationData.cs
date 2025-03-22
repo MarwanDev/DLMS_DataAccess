@@ -347,7 +347,7 @@ namespace DLMS_DataAccess
         }
 
         public static bool GetLocalDLApplicationInfoById(int id, ref int applicantPersonID, ref DateTime applicationDate,
-            ref byte applicationStatus, ref decimal paidFees, ref string createdByUserName, ref int licenceClassID)
+            ref byte applicationStatus, ref decimal paidFees, ref string createdByUserName, ref int licenceClassID, ref string licenceClassName)
         {
             bool isFound = false;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
@@ -363,8 +363,8 @@ namespace DLMS_DataAccess
                 "LocalDrivingLicenseApplications.LicenseClassID,\r\n" +
                 //"CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS 'Full Name',\r\n" +
                 //"ApplicationTypeTitle,\r\n" +
-                "UserName\r\n" +
-                //"ClassName\r\n\r\n" +
+                "UserName,\r\n" +
+                "ClassName\r\n\r\n" +
                 "from LocalDrivingLicenseApplications join Applications \r\n" +
                 "on Applications.ApplicationID = LocalDrivingLicenseApplications.ApplicationID join ApplicationTypes on\r\n" +
                 "Applications.ApplicationTypeID = ApplicationTypes.ApplicationTypeID join People on\r\n" +
@@ -390,6 +390,7 @@ namespace DLMS_DataAccess
                     paidFees = (decimal)reader["PaidFees"];
                     createdByUserName = (string)reader["UserName"];
                     licenceClassID = (int)reader["LicenseClassID"];
+                    licenceClassName = (string)reader["ClassName"];
                 }
                 else
                 {
