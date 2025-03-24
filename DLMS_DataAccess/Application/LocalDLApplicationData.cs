@@ -507,5 +507,76 @@ namespace DLMS_DataAccess
 
             return status;
         }
+
+        public static int GetApplicationId(int id)
+        {
+            int applicationId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT \r\n\r\n        " +
+            "LocalDrivingLicenseApplications.ApplicationID        \r\n    " +
+            "FROM LocalDrivingLicenseApplications \r\n    " +
+            "JOIN [dvld].[dbo].[Applications] \r\n        " +
+            "ON LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n    " +
+            "JOIN People \r\n        ON People.PersonID = Applications.ApplicantPersonID\r\n    " +
+            "LEFT JOIN LicenseClasses \r\n        ON LicenseClasses.LicenseClassID = LocalDrivingLicenseApplications.LicenseClassID\r\n    " +
+            "LEFT JOIN TestAppointments \r\n        ON TestAppointments.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID\r\n    " +
+            "LEFT JOIN Tests \r\n        " +
+            "ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n\t\t" +
+            $"where LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID = {id}" +
+            "\r\n\t\tGROUP BY \r\n    " +
+            "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID,\r\n    " +
+            "LocalDrivingLicenseApplications.ApplicationID,\r\n    " +
+            "ClassName,\r\n    " +
+            "NationalNo,\r\n    " +
+            "People.FirstName, People.SecondName, People.ThirdName, People.LastName,\r\n    " +
+            "ApplicationDate,\r\n" +
+            "ApplicationStatus";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    applicationId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return applicationId;
+        }
+
+        public static bool DeleteLocalDLApplication(int id)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = @"Delete LocalDrivingLicenseApplications 
+                                where LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", id);
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
+        }
     }
 }
