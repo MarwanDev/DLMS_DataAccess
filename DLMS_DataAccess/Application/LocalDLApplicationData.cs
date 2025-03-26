@@ -647,6 +647,40 @@ namespace DLMS_DataAccess
             return applicationId;
         }
 
+        public static int GetPersonApplicantId(int id)
+        {
+            int applicantId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT \r\n\t[ApplicantPersonID]\r\n  " +
+                "FROM [dvld].[dbo].[Applications]\r\n  " +
+                "join LocalDrivingLicenseApplications on \r\n  " +
+                "LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n  " +
+                $"where LocalDrivingLicenseApplicationID = {id}\r\n";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    applicantId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return applicantId;
+        }
+
         public static bool DeleteLocalDLApplication(int id)
         {
             int rowsAffected = 0;
