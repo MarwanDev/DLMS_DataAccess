@@ -410,6 +410,88 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
+        public static bool GetLocalDLApplicationMoreDetailsById(int id, ref string className, ref string fullName, 
+            ref DateTime applicationDate, ref int passedTests, ref string statusText, ref int applicationId, 
+            ref decimal paidFees, ref string applicationTypeTitle, ref DateTime lastStatusDate, ref string userName)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT * FROM (\r\n    SELECT \r\n        " +
+                "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID AS 'L.D.L.APP.ID',\r\n        " +
+                "ClassName AS 'Driving Class',\r\n        " +
+                "CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS 'Full Name',\r\n        " +
+                "[ApplicationDate] AS 'Application Date',\r\n\r\n        " +
+                "(SELECT COUNT(*) \r\n         " +
+                "FROM Tests \r\n         " +
+                "JOIN TestAppointments ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n         " +
+                "WHERE TestAppointments.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID\r\n           " +
+                "AND Tests.TestResult = 1) AS 'Passed Tests',\r\n\r\n        " +
+                "CASE\r\n            " +
+                "WHEN [ApplicationStatus] = 0 THEN 'Cancelled'\r\n            " +
+                "WHEN [ApplicationStatus] = 1 THEN 'New'\r\n            " +
+                "WHEN [ApplicationStatus] = 2 THEN 'In Progress'\r\n            " +
+                "WHEN [ApplicationStatus] = 3 THEN 'Complete'\r\n        " +
+                "END AS 'Status',\r\n\t\tClassName,\r\n\t\tLocalDrivingLicenseApplications.ApplicationID,\r\n\t\t" +
+                "Applications.PaidFees,\r\n\t\tApplicationTypeTitle,\r\n\t\tLastStatusDate,\r\n\t\tUserName\r\n        \r\n    " +
+                "FROM LocalDrivingLicenseApplications \r\n    " +
+                "JOIN [dvld].[dbo].[Applications] \r\n        " +
+                "ON LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n    " +
+                "JOIN People \r\n        ON People.PersonID = Applications.ApplicantPersonID\r\n    " +
+                "JOIN Users \r\n        ON Users.UserID = Applications.CreatedByUserID\r\n    " +
+                "JOIN ApplicationTypes \r\n        " +
+                "ON ApplicationTypes.ApplicationTypeID = Applications.ApplicationTypeID\r\n    " +
+                "LEFT JOIN LicenseClasses \r\n        " +
+                "ON LicenseClasses.LicenseClassID = LocalDrivingLicenseApplications.LicenseClassID\r\n    " +
+                "LEFT JOIN TestAppointments \r\n        " +
+                "ON TestAppointments.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID\r\n    " +
+                "LEFT JOIN Tests \r\n        " +
+                "ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n\t\tGROUP BY \r\n    " +
+                "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID,\r\n    " +
+                "LocalDrivingLicenseApplications.ApplicationID,\r\n\tApplications.PaidFees,\r\n\tApplicationTypes.ApplicationTypeTitle,\r\n    " +
+                "NationalNo,\r\n    People.FirstName, People.SecondName, People.ThirdName, People.LastName,\r\n    " +
+                "ApplicationDate,\r\n    LastStatusDate,\r\n    ApplicationStatus,\r\n\tUserName\r\n) r1\r\n" +
+                "where \"L.D.L.APP.ID\" = @LocalDLApplicationID";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDLApplicationID", id);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+                    className = (string)reader["Driving Class"];
+                    fullName = (string)reader["Full Name"];
+                    applicationDate = (DateTime)reader["ApplicationDate"];
+                    lastStatusDate = (DateTime)reader["LastStatusDate"];
+                    paidFees = (decimal)reader["PaidFees"];
+                    passedTests = (int)reader["Passed Tests"];
+                    statusText = (string)reader["Status"];
+                    applicationId = (int)reader["ApplicationID"];
+                    userName = (string)reader["UserName"];
+                    applicationTypeTitle = (string)reader["ApplicationTypeTitle"];
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
         public static int GetPassedTestsCountById(int id)
         {
             int count = 0;
