@@ -431,7 +431,7 @@ namespace DLMS_DataAccess
                 "WHEN [ApplicationStatus] = 1 THEN 'New'\r\n            " +
                 "WHEN [ApplicationStatus] = 2 THEN 'In Progress'\r\n            " +
                 "WHEN [ApplicationStatus] = 3 THEN 'Complete'\r\n        " +
-                "END AS 'Status',\r\n\t\tClassName,\r\n\t\tLocalDrivingLicenseApplications.ApplicationID,\r\n\t\t" +
+                "END AS 'Status',\r\n\t\t\r\n\t\tLocalDrivingLicenseApplications.ApplicationID,\r\n\t\t" +
                 "Applications.PaidFees,\r\n\t\tApplicationTypeTitle,\r\n\t\tLastStatusDate,\r\n\t\tUserName\r\n        \r\n    " +
                 "FROM LocalDrivingLicenseApplications \r\n    " +
                 "JOIN [dvld].[dbo].[Applications] \r\n        " +
@@ -447,9 +447,18 @@ namespace DLMS_DataAccess
                 "LEFT JOIN Tests \r\n        " +
                 "ON Tests.TestAppointmentID = TestAppointments.TestAppointmentID\r\n\t\tGROUP BY \r\n    " +
                 "LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID,\r\n    " +
-                "LocalDrivingLicenseApplications.ApplicationID,\r\n\tApplications.PaidFees,\r\n\tApplicationTypes.ApplicationTypeTitle,\r\n    " +
-                "NationalNo,\r\n    People.FirstName, People.SecondName, People.ThirdName, People.LastName,\r\n    " +
-                "ApplicationDate,\r\n    LastStatusDate,\r\n    ApplicationStatus,\r\n\tUserName\r\n) r1\r\n" +
+                "LocalDrivingLicenseApplications.ApplicationID," +
+                "\r\n\tApplications.PaidFees," +
+                "\r\n\tApplicationTypes.ApplicationTypeTitle,\r\n    " +
+                "People.FirstName, " +
+                "People.SecondName, " +
+                "People.ThirdName, " +
+                "People.LastName,\r\n    " +
+                "ApplicationDate,\r\n    " +
+                "LastStatusDate,\r\n    " +
+                "ApplicationStatus," +
+                "ClassName," +
+                "\r\n\tUserName\r\n) r1\r\n" +
                 "where \"L.D.L.APP.ID\" = @LocalDLApplicationID";
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@LocalDLApplicationID", id);
@@ -465,7 +474,7 @@ namespace DLMS_DataAccess
                     isFound = true;
                     className = (string)reader["Driving Class"];
                     fullName = (string)reader["Full Name"];
-                    applicationDate = (DateTime)reader["ApplicationDate"];
+                    applicationDate = (DateTime)reader["Application Date"];
                     lastStatusDate = (DateTime)reader["LastStatusDate"];
                     paidFees = (decimal)reader["PaidFees"];
                     passedTests = (int)reader["Passed Tests"];
