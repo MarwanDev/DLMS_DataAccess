@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace DLMS_DataAccess
@@ -39,6 +40,39 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return testAppointmentID;
+        }
+
+        public static DataTable GetAllTestAppointmentsForLocalDLApplication(int id)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT [TestAppointmentID] AS 'Appointment ID'\r\n      " +
+                ",[AppointmentDate] AS 'Appointment Date'\r\n     " +
+                ",[PaidFees] AS 'Paid Fees'\r\n      " +
+                ",[IsLocked] AS 'Is Locked'\r\n  " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n" +
+                $"WHERE LocalDrivingLicenseApplicationID = {id}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dt;
         }
     }
 }
