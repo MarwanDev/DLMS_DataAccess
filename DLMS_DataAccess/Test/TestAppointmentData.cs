@@ -106,5 +106,61 @@ namespace DLMS_DataAccess
 
             return count;
         }
+
+        public static bool DoesActiveTestAppointmentExist(int localDLApplicationId)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Found = 1\r\n  " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n" +
+                "WHERE LocalDrivingLicenseApplicationID = @LocalDLApplication\r\nAND IsLocked = 0";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDLApplication", localDLApplicationId);
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
+        public static bool IsTestPassed(int testTypeId, int localDLApplication)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "select IsFound = 1\r\n  " +
+                "from Tests join TestAppointments \r\n  " +
+                "on TestAppointments.TestAppointmentID = Tests.TestAppointmentID\r\n  " +
+                "where TestTypeID = 1 and TestResult = 1 and LocalDrivingLicenseApplicationID = @LocalDLApplication";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@testTypeId", testTypeId);
+            command.Parameters.AddWithValue("@LocalDLApplication", localDLApplication);
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
     }
 }
