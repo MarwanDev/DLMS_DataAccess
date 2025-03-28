@@ -74,5 +74,37 @@ namespace DLMS_DataAccess
 
             return dt;
         }
+
+        public static int GetAllTestAppointmentsCountForLocalDLApplication(int id)
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Count(*) AS Count\r\n      " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n" +
+                $"WHERE LocalDrivingLicenseApplicationID = {id}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
+        }
     }
 }
