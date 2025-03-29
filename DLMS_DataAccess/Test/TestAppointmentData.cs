@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
+using System.Security.Policy;
 
 namespace DLMS_DataAccess
 {
     public class TestAppointmentData : Data
     {
-        public static int AddNewTestAppointment(int testTypeId, int localDLApplicationId, DateTime appointmentDate, 
+        public static int AddNewTestAppointment(int testTypeId, int localDLApplicationId, DateTime appointmentDate,
             decimal paidFees, int createdByUserId, bool isLocked)
         {
             int testAppointmentID = -1;
@@ -193,6 +195,87 @@ namespace DLMS_DataAccess
             }
 
             return count;
+        }
+
+        public static bool UpdateTestAppointment(int id, DateTime date)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"Update  TestAppointments  
+                            set AppointmentDate = @AppointmentDate
+                                where TestAppointmentID = @TestAppointmentID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@TestAppointmentID", id);
+            command.Parameters.AddWithValue("@AppointmentDate", date);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
+        }
+
+        public static bool GetTestAppointmentById(int id, ref int testTypeId, ref int localDLApplicationId,
+            ref DateTime appointmentDate, ref decimal paidFees, ref int createdByUserId, ref bool isLocked)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT [TestAppointmentID]\r\n      " +
+                ",[TestTypeID]\r\n      " +
+                ",[LocalDrivingLicenseApplicationID]\r\n      " +
+                ",[AppointmentDate]\r\n      " +
+                ",[PaidFees]\r\n      " +
+                ",[CreatedByUserID]\r\n      " +
+                ",[IsLocked]\r\n  " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n\r\n  " +
+                "WHERE [TestAppointmentID] = @TestAppointmentID\r\n";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@TestAppointmentID", id);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+                    testTypeId = (int)reader["TestTypeID"];
+                    localDLApplicationId = (int)reader["LocalDrivingLicenseApplicationID"];
+                    appointmentDate = (DateTime)reader["AppointmentDate"];
+                    paidFees = (decimal)reader["PaidFees"];
+                    createdByUserId = (int)reader["CreatedByUserID"];
+                    isLocked = (bool)reader["IsLocked"];
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
         }
     }
 }
