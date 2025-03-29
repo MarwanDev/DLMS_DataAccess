@@ -162,5 +162,37 @@ namespace DLMS_DataAccess
             }
             return isFound;
         }
+
+        public static int GetNumberOfTrials(int testTypeId, int localDLApplication)
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Count (*) As Count\r\n  " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n  " +
+                $"where LocalDrivingLicenseApplicationID = {localDLApplication} and TestTypeID = {testTypeId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
+        }
     }
 }
