@@ -42,7 +42,7 @@ namespace DLMS_DataAccess
             return testAppointmentID;
         }
 
-        public static DataTable GetAllTestAppointmentsForLocalDLApplication(int id)
+        public static DataTable GetAllTestAppointmentsForLocalDLApplication(int id, int testTypeId)
         {
             DataTable dt = new DataTable();
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
@@ -51,7 +51,8 @@ namespace DLMS_DataAccess
                 ",[PaidFees] AS 'Paid Fees'\r\n      " +
                 ",[IsLocked] AS 'Is Locked'\r\n  " +
                 "FROM [dvld].[dbo].[TestAppointments]\r\n" +
-                $"WHERE LocalDrivingLicenseApplicationID = {id}";
+                $"WHERE LocalDrivingLicenseApplicationID = {id}\r\n" +
+                $"AND TestTypeID = {testTypeId}";
             SqlCommand command = new SqlCommand(query, connection);
 
             try
@@ -134,6 +135,36 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
+        public static bool DoesLockedTestAppointmentExist(int localDLApplicationId, int testTypeId)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Found = 1\r\n  " +
+                "FROM [dvld].[dbo].[TestAppointments]\r\n" +
+                "WHERE LocalDrivingLicenseApplicationID = @LocalDLApplication\r\n" +
+                "AND IsLocked = 1\r\n" +
+                "AND TestTypeId = @TestTypeId";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDLApplication", localDLApplicationId);
+            command.Parameters.AddWithValue("@TestTypeId", testTypeId);
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
         public static bool IsTestPassed(int testTypeId, int localDLApplication)
         {
             bool isFound = false;
@@ -141,7 +172,7 @@ namespace DLMS_DataAccess
             string query = "select IsFound = 1\r\n  " +
                 "from Tests join TestAppointments \r\n  " +
                 "on TestAppointments.TestAppointmentID = Tests.TestAppointmentID\r\n  " +
-                "where TestTypeID = 1 and TestResult = 1 and LocalDrivingLicenseApplicationID = @LocalDLApplication";
+                "where TestTypeID = @TestTypeId and TestResult = 1 and LocalDrivingLicenseApplicationID = @LocalDLApplication";
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@testTypeId", testTypeId);
             command.Parameters.AddWithValue("@LocalDLApplication", localDLApplication);
