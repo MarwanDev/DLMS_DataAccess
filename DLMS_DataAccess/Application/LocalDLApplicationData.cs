@@ -703,5 +703,41 @@ namespace DLMS_DataAccess
             }
             return (rowsAffected > 0);
         }
+
+        public static bool CompleteLocalDLApplication(int id)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"UPDATE
+                                A
+                            SET
+                                A.ApplicationStatus = 3
+                            FROM
+                                Applications AS A
+                                INNER JOIN LocalDrivingLicenseApplications AS L
+                                ON L.ApplicationID = A.ApplicationID
+                            WHERE
+                                L.LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", id);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
+        }
     }
 }
