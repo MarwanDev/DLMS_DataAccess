@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Net;
-using System.Security.Policy;
 
 namespace DLMS_DataAccess
 {
@@ -276,6 +274,35 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return isFound;
+        }
+
+        public static bool LockTestAppointment(int testAppointmentId)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"Update  TestAppointments  
+                            set IsLocked = 1
+                                where TestAppointmentID = @TestAppointmentID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@TestAppointmentID", testAppointmentId);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
         }
     }
 }
