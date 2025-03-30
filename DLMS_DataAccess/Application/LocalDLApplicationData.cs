@@ -704,7 +704,7 @@ namespace DLMS_DataAccess
             return (rowsAffected > 0);
         }
 
-        public static bool CompleteLocalDLApplication(int id)
+        public static bool ChangeApplicationStatus(int id, byte status)
         {
             int rowsAffected = 0;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
@@ -712,7 +712,7 @@ namespace DLMS_DataAccess
             string query = @"UPDATE
                                 A
                             SET
-                                A.ApplicationStatus = 3
+                                A.ApplicationStatus = @ApplicationStatus
                             FROM
                                 Applications AS A
                                 INNER JOIN LocalDrivingLicenseApplications AS L
@@ -723,6 +723,7 @@ namespace DLMS_DataAccess
             SqlCommand command = new SqlCommand(query, connection);
 
             command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", id);
+            command.Parameters.AddWithValue("@ApplicationStatus", status);
 
             try
             {
