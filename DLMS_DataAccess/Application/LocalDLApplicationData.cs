@@ -410,8 +410,8 @@ namespace DLMS_DataAccess
             return isFound;
         }
 
-        public static bool GetLocalDLApplicationMoreDetailsById(int id, ref string className, ref string fullName, 
-            ref DateTime applicationDate, ref int passedTests, ref string statusText, ref int applicationId, 
+        public static bool GetLocalDLApplicationMoreDetailsById(int id, ref string className, ref string fullName,
+            ref DateTime applicationDate, ref int passedTests, ref string statusText, ref int applicationId,
             ref decimal paidFees, ref string applicationTypeTitle, ref DateTime lastStatusDate, ref string userName)
         {
             bool isFound = false;
@@ -772,6 +772,35 @@ namespace DLMS_DataAccess
                 connection.Close();
             }
             return (rowsAffected > 0);
+        }
+
+        public static bool DoesLicenceExist(int id)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "select found = 1\r\n" +
+                "from Licenses join Applications on\r\n" +
+                "Applications.ApplicationID = Licenses.ApplicationID join\r\n" +
+                "LocalDrivingLicenseApplications on LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n" +
+                "where LocalDrivingLicenseApplicationID = @LocalDLApplication";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LocalDLApplication", id);
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
         }
     }
 }
