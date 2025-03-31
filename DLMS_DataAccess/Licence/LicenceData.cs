@@ -11,16 +11,16 @@ namespace DLMS_DataAccess.Licence
         {
             int licenceId = -1;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-            string query = @"INSERT INTO Licenses (ApplicationID, DriverId, LicenseClassID, IssueDate,
+            string query = @"INSERT INTO Licenses (ApplicationID, DriverId, LicenseClass, IssueDate,
                             IsActive, Notes, ExpirationDate, PaidFees, CreatedByUserId, IssueReason)
-                            VALUES (@ApplicationID, @DriverId, @LicenseClassID, @IssueDate,
+                            VALUES (@ApplicationID, @DriverId, @LicenseClass, @IssueDate,
                             @IsActive, @Notes, @ExpirationDate, @PaidFees, @CreatedByUserId, @IssueReason);
                             SELECT SCOPE_IDENTITY();";
 
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@ApplicationID", applicationId);
             command.Parameters.AddWithValue("@DriverId", driverId);
-            command.Parameters.AddWithValue("@LicenseClassID", licenceClassId);
+            command.Parameters.AddWithValue("@LicenseClass", licenceClassId);
             command.Parameters.AddWithValue("@IssueDate", issueDate);
             command.Parameters.AddWithValue("@IsActive", isActive);
             command.Parameters.AddWithValue("@Notes", notes);

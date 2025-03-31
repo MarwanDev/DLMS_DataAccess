@@ -647,6 +647,39 @@ namespace DLMS_DataAccess
             return applicationId;
         }
 
+        public static int GetLicenceClassId(int id)
+        {
+            int applicationId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT \r\n\r\n        " +
+            "LicenseClassID        \r\n    " +
+            "FROM LocalDrivingLicenseApplications \r\n    " +
+            $"where LocalDrivingLicenseApplicationID = {id}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    applicationId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return applicationId;
+        }
+
         public static int GetPersonApplicantId(int id)
         {
             int applicantId = 0;
