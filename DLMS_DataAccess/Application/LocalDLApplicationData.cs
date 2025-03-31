@@ -354,15 +354,10 @@ namespace DLMS_DataAccess
             string query = "select \r\n" +
                 "LocalDrivingLicenseApplicationID,\r\n" +
                 "ApplicantPersonID,\r\n" +
-                //"Applications.ApplicationTypeID,\r\n" +
                 "ApplicationStatus,\r\n" +
-                //"LastStatusDate,\r\n" +
                 "ApplicationDate,\r\n" +
                 "PaidFees,\r\n" +
-                //"CreatedByUserID,\r\n" +
                 "LocalDrivingLicenseApplications.LicenseClassID,\r\n" +
-                //"CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS 'Full Name',\r\n" +
-                //"ApplicationTypeTitle,\r\n" +
                 "UserName,\r\n" +
                 "ClassName\r\n\r\n" +
                 "from LocalDrivingLicenseApplications join Applications \r\n" +
