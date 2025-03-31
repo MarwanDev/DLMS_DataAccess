@@ -46,14 +46,16 @@
     <Compile Include="clsDataAccessSettings.cs" />
     <Compile Include="CountryData.cs" />
     <Compile Include="Data.cs" />
-    <Compile Include="LicenceClassData.cs" />
+    <Compile Include="Licence\LicenceClassData.cs" />
     <Compile Include="Application\LocalDLApplicationData.cs" />
-    <Compile Include="PersonData.cs" />
+    <Compile Include="Licence\LicenceData.cs" />
+    <Compile Include="Person\DriverData.cs" />
+    <Compile Include="Person\PersonData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test\TestAppointmentData.cs" />
     <Compile Include="Test\TestData.cs" />
     <Compile Include="Test\TestTypeData.cs" />
-    <Compile Include="UserData.cs" />
+    <Compile Include="Person\UserData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
