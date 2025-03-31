@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 
 namespace DLMS_DataAccess.Licence
 {
-    public class LicenceData
+    public class LicenceData : Data
     {
         public static int AddNewLicence(int applicationId, int driverId, int licenceClassId,
             DateTime issueDate, bool isActive, string notes,
@@ -230,6 +231,78 @@ namespace DLMS_DataAccess.Licence
                 connection.Close();
             }
             return isFound;
+        }
+
+        public static DataTable GetAllLocalLicencesPerPerson(int personId)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT [LicenseID] as 'Lic. ID'\r\n      " +
+                ",Licenses.[ApplicationID] as 'App. ID'\r\n      " +
+                ",ClassName as 'Class Name'\r\n      " +
+                ",[IssueDate] as 'Issue Date'\r\n      " +
+                ",[ExpirationDate] as 'Expiration Date'\r\n      " +
+                ",[IsActive] as 'Is Active'\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join LocalDrivingLicenseApplications on LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n  " +
+                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n  where PersonID = {personId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return dt;
+        }
+
+        public static int GetAllLocalLicencePerPersonCount(int personId)
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Count (*) as Count\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join LocalDrivingLicenseApplications on LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n  " +
+                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n  where PersonID = {personId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
         }
     }
 }
