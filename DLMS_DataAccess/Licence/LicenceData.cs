@@ -376,5 +376,64 @@ namespace DLMS_DataAccess.Licence
 
             return count;
         }
+
+        public static bool DoesInternationalLicenceExistWithLocalLicenceId(int licenceId)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "select found = 1\r\n" +
+                "from InternationalLicenses \r\n" +
+                "join Licenses on Licenses.LicenseID = InternationalLicenses.IssuedUsingLocalLicenseID " +
+                "and Licenses.IsActive = 1 \r\n" +
+                "where IssuedUsingLocalLicenseID = @IssuedUsingLocalLicenseID";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@IssuedUsingLocalLicenseID", licenceId);
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                isFound = reader.HasRows;
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
+
+        public static int GetLicencClassId(int licenceId)
+        {
+            int licenceClassId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = $"Select [LicenseClass] From [Licenses] where [LicenseID] = {licenceId}";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    licenceClassId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return licenceClassId;
+        }
     }
 }

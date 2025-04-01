@@ -771,7 +771,7 @@ namespace DLMS_DataAccess
             return (rowsAffected > 0);
         }
 
-        public static bool DoesLicenceExist(int id)
+        public static bool DoesLicenceExistForLocalDLApplication(int id)
         {
             bool isFound = false;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
