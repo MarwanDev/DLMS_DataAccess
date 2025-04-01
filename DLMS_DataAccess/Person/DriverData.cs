@@ -92,7 +92,7 @@ namespace DLMS_DataAccess.Person
         {
             DataTable dt = new DataTable();
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-            string query = "SELECT \r\n    " +
+            string query = "Select * from (\r\n\r\nSELECT \r\n    " +
                 "D.[DriverID] AS 'Driver ID',\r\n    " +
                 "D.[PersonID] AS 'Person ID',\r\n    " +
                 "P.[Nationalno] AS 'National No.',\r\n    " +
@@ -103,7 +103,7 @@ namespace DLMS_DataAccess.Person
                 "JOIN [dvld].[dbo].[People] P ON P.PersonID = D.PersonID\r\n" +
                 "LEFT JOIN [dvld].[dbo].[Licenses] L \r\n    ON D.DriverID = L.DriverID \r\n    " +
                 "AND L.IsActive = 1\r\nGROUP BY D.DriverID, D.PersonID, D.CreatedDate,\r\n" +
-                "P.NationalNo, P.FirstName, P.SecondName, P.ThirdName, P.LastName" + GetFilterConditionText(filterkeyWord) + SortingCondition;
+                "P.NationalNo, P.FirstName, P.SecondName, P.ThirdName, P.LastName\r\n) R1" + GetFilterConditionText(filterkeyWord) + SortingCondition;
             SqlCommand command = new SqlCommand(query, connection);
 
             try
