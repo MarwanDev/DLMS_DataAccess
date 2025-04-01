@@ -274,9 +274,12 @@ namespace DLMS_DataAccess.Licence
         {
             DataTable dt = new DataTable();
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-            string query = "SELECT [LicenseID] as 'Lic. ID'\r\n      " +
-                ",Licenses.[ApplicationID] as 'App. ID'\r\n      " +
-                ",ClassName as 'Class Name'\r\n      " +
+            string query = "SELECT  InternationalLicenses.InternationalLicenseID AS 'Int. licence ID'\r\n  " +
+                ",Licenses.[ApplicationID] as 'Application ID'\r\n\t\t" +
+                ",[IssuedUsingLocalLicenseID] as 'L.Licence ID'\r\n\t\t" +
+                ",InternationalLicenses.IssueDate as 'Issue Date'\r\n\t\t" +
+                ",InternationalLicenses.ExpirationDate as 'Expiration Date'\r\n\t\t" +
+                ",InternationalLicenses.IsActive as 'Is Active'\r\n\r\n  " +
                 "FROM [dvld].[dbo].[Licenses]\r\n  " +
                 "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
                 "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
