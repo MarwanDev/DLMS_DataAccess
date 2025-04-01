@@ -740,7 +740,8 @@ namespace DLMS_DataAccess
             string query = @"UPDATE
                                 A
                             SET
-                                A.ApplicationStatus = @ApplicationStatus
+                                A.ApplicationStatus = @ApplicationStatus,
+                                A.LastStatusDate = @LastStatusDate
                             FROM
                                 Applications AS A
                                 INNER JOIN LocalDrivingLicenseApplications AS L
@@ -752,6 +753,7 @@ namespace DLMS_DataAccess
 
             command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", id);
             command.Parameters.AddWithValue("@ApplicationStatus", status);
+            command.Parameters.AddWithValue("@LastStatusDate", DateTime.Now);
 
             try
             {
