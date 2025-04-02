@@ -360,7 +360,7 @@ namespace DLMS_DataAccess.Licence
                 "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
                 "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
                 "join InternationalLicenses on InternationalLicenses.IssuedUsingLocalLicenseID = Licenses.LicenseID\r\n  " +
-                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n";
+                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n" + SortingCondition;
             SqlCommand command = new SqlCommand(query, connection);
 
             try
@@ -453,6 +453,130 @@ namespace DLMS_DataAccess.Licence
             return count;
         }
 
+        public static int GetAllInternationalLicenceCount()
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT Count (*) as Count\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join InternationalLicenses on InternationalLicenses.IssuedUsingLocalLicenseID = Licenses.LicenseID\r\n  " +
+                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
+        }
+
+        private static string GetFilterConditionText(string filterkeyWord)
+        {
+            string filterCondition = $"\"{CurrentFilter}\" like '%{filterkeyWord}%'";
+            return filterCondition.Length > 0 ? "\nwhere " + filterCondition : "";
+        }
+
+        public static string CurrentFilter { get; set; }
+
+        public static int GetFilteredInternationalLicenceCount(string filterkeyWord)
+        {
+            int count = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "Select count(*) from (\n" +
+                "SELECT  InternationalLicenses.InternationalLicenseID AS 'Int. licence ID'\r\n  " +
+                ",Licenses.[ApplicationID] as 'Application ID'\r\n\t\t" +
+                ",[IssuedUsingLocalLicenseID] as 'L.Licence ID'\r\n\t\t" +
+                ",InternationalLicenses.IssueDate as 'Issue Date'\r\n\t\t" +
+                ",InternationalLicenses.ExpirationDate as 'Expiration Date'\r\n\t\t" +
+                ",InternationalLicenses.IsActive as 'Is Active'\r\n\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join InternationalLicenses on InternationalLicenses.IssuedUsingLocalLicenseID = Licenses.LicenseID\r\n  " +
+                "join People on People.PersonID = Applications.ApplicantPersonID\r\n" +
+                "\r) R1" + GetFilterConditionText(filterkeyWord); ;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    count = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return count;
+        }
+
+        public static DataTable GetFilteredInternationalLicences(string filterkeyWord)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "Select * from (\n" +
+                "SELECT  InternationalLicenses.InternationalLicenseID AS 'Int. licence ID'\r\n  " +
+                ",Licenses.[ApplicationID] as 'Application ID'\r\n\t\t" +
+                ",[IssuedUsingLocalLicenseID] as 'L.Licence ID'\r\n\t\t" +
+                ",InternationalLicenses.IssueDate as 'Issue Date'\r\n\t\t" +
+                ",InternationalLicenses.ExpirationDate as 'Expiration Date'\r\n\t\t" +
+                ",InternationalLicenses.IsActive as 'Is Active'\r\n\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join InternationalLicenses on InternationalLicenses.IssuedUsingLocalLicenseID = Licenses.LicenseID\r\n  " +
+                "join People on People.PersonID = Applications.ApplicantPersonID\r\n" +
+                "\r) R1" + GetFilterConditionText(filterkeyWord) + SortingCondition;
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return dt;
+        }
+
         public static bool DoesInternationalLicenceExistWithLocalLicenceId(int licenceId)
         {
             bool isFound = false;
@@ -482,7 +606,7 @@ namespace DLMS_DataAccess.Licence
             return isFound;
         }
 
-        public static int GetLicencClassId(int licenceId)
+        public static int GetLicenceClassId(int licenceId)
         {
             int licenceClassId = 0;
             DataTable dt = new DataTable();
