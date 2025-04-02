@@ -635,5 +635,81 @@ namespace DLMS_DataAccess.Licence
 
             return licenceClassId;
         }
+
+        public static bool GetInternationalLicenceDataById(int id, ref int localLicenceId, ref string nationalNo, 
+            ref string gender, ref DateTime issueDate, ref int applicationId, ref bool isActive,
+            ref DateTime dateOfBirth, ref int driverId, ref DateTime expirationDate, ref string imagePath, ref string fullName)
+        {
+            bool isFound = false;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT [InternationalLicenseID]\r\n      " +
+                ",InternationalLicenses.[ApplicationID]\r\n      " +
+                ",[DriverID]\r\n      " +
+                ",[IssuedUsingLocalLicenseID]\r\n      " +
+                ",[IssueDate]\r\n      " +
+                ",[ExpirationDate]\r\n      " +
+                ",[IsActive]\r\n      " +
+                ",CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName) AS 'Full Name'\r\n\t  " +
+                ",People.NationalNo\r\n\t  " +
+                ",CASE\r\n\t  " +
+                "WHEN People.Gender = 0 THEN 'Female'\r\n\t  " +
+                "ELSE 'Male'\t\r\n\t  " +
+                "END AS Gender\r\n\t  " +
+                ",People.ImagePath\r\n\t  " +
+                ",People.DateOfBirth\r\n  " +
+                "FROM [dvld].[dbo].[InternationalLicenses]\r\n  " +
+                "join Applications on Applications.ApplicationID = InternationalLicenses.ApplicationID\r\n  " +
+                "join People on Applications.ApplicantPersonID = People.PersonID\r\n  " +
+                "where InternationalLicenseID = @InternationalLicenseID";
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@InternationalLicenseID", id);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+                    driverId = (int)reader["DriverID"];
+                    localLicenceId = (int)reader["IssuedUsingLocalLicenseID"];
+                    applicationId = (int)reader["ApplicationID"];
+                    issueDate = (DateTime)reader["IssueDate"];
+                    expirationDate = (DateTime)reader["ExpirationDate"];
+                    isActive = (bool)reader["IsActive"];
+                    gender = (string)reader["Gender"];
+                    dateOfBirth = (DateTime)reader["DateOfBirth"];
+                    nationalNo = (string)reader["NationalNo"];
+                    fullName = (string)reader["Full Name"];
+
+                    //imagePath: allows null in database so we should handle null
+                    if (reader["ImagePath"] != DBNull.Value)
+                    {
+                        imagePath = (string)reader["ImagePath"];
+                    }
+                    else
+                    {
+                        imagePath = "";
+                    }
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return isFound;
+        }
     }
 }
