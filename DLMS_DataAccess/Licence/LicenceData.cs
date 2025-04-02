@@ -50,6 +50,45 @@ namespace DLMS_DataAccess.Licence
             return licenceId;
         }
 
+        public static int AddNewInternationalLicence(int applicationId, int driverId, int localLicenceId,
+            DateTime issueDate, bool isActive, DateTime expirationDate, int createdByUserId)
+        {
+            int licenceId = -1;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = @"INSERT INTO InternationalLicenses (ApplicationID, DriverId, IssuedUsingLocalLicenseID, IssueDate,
+                            IsActive, ExpirationDate, CreatedByUserId)
+                            VALUES (@ApplicationID, @DriverId, @LocalLicenceId, @IssueDate,
+                            @IsActive, @ExpirationDate, @CreatedByUserId);
+                            SELECT SCOPE_IDENTITY();";
+
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@ApplicationID", applicationId);
+            command.Parameters.AddWithValue("@DriverId", driverId);
+            command.Parameters.AddWithValue("@LocalLicenceId", localLicenceId);
+            command.Parameters.AddWithValue("@IssueDate", issueDate);
+            command.Parameters.AddWithValue("@IsActive", isActive);
+            command.Parameters.AddWithValue("@ExpirationDate", expirationDate);
+            command.Parameters.AddWithValue("@CreatedByUserId", createdByUserId);
+
+            try
+            {
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null && int.TryParse(result.ToString(), out int insertedID))
+                {
+                    licenceId = insertedID;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return licenceId;
+        }
+
         public static bool GetLicenceDataById(int id, ref int driverId, ref DateTime issueDate, ref DateTime expirationDate,
             ref string notes, ref decimal paidFees, ref bool isActive, ref byte issueReason, ref string fullName,
             ref string className, ref string nationalNo, ref string gender, ref DateTime dateOfBirth, ref string imagePath)
