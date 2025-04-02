@@ -346,6 +346,43 @@ namespace DLMS_DataAccess.Licence
             return dt;
         }
 
+        public static DataTable GetAllInternationalLicences()
+        {
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT  InternationalLicenses.InternationalLicenseID AS 'Int. licence ID'\r\n  " +
+                ",Licenses.[ApplicationID] as 'Application ID'\r\n\t\t" +
+                ",[IssuedUsingLocalLicenseID] as 'L.Licence ID'\r\n\t\t" +
+                ",InternationalLicenses.IssueDate as 'Issue Date'\r\n\t\t" +
+                ",InternationalLicenses.ExpirationDate as 'Expiration Date'\r\n\t\t" +
+                ",InternationalLicenses.IsActive as 'Is Active'\r\n\r\n  " +
+                "FROM [dvld].[dbo].[Licenses]\r\n  " +
+                "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
+                "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
+                "join InternationalLicenses on InternationalLicenses.IssuedUsingLocalLicenseID = Licenses.LicenseID\r\n  " +
+                $"join People on People.PersonID = Applications.ApplicantPersonID\r\n";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return dt;
+        }
+
         public static int GetAllLocalLicencePerPersonCount(int personId)
         {
             int count = 0;
