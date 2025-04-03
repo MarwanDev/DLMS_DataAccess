@@ -285,7 +285,7 @@ namespace DLMS_DataAccess.Licence
                 "FROM [dvld].[dbo].[Licenses]\r\n  " +
                 "join LicenseClasses on LicenseClasses.LicenseClassID = Licenses.LicenseClass\r\n  " +
                 "join Applications on Applications.ApplicationID = Licenses.ApplicationID\r\n  " +
-                "join LocalDrivingLicenseApplications on LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n  " +
+                "left join LocalDrivingLicenseApplications on LocalDrivingLicenseApplications.ApplicationID = Applications.ApplicationID\r\n  " +
                 $"join People on People.PersonID = Applications.ApplicantPersonID\r\n  where PersonID = {personId}";
             SqlCommand command = new SqlCommand(query, connection);
 
@@ -710,6 +710,35 @@ namespace DLMS_DataAccess.Licence
                 connection.Close();
             }
             return isFound;
+        }
+
+        public static bool DeactivateLicence(int id)
+        {
+            int rowsAffected = 0;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+
+            string query = @"Update  Licenses  
+                            set IsActive = 0    
+                                where LicenseID = @LicenseID";
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@LicenseID", id);
+
+            try
+            {
+                connection.Open();
+                rowsAffected = command.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return (rowsAffected > 0);
         }
     }
 }
