@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DLMS_DataAccess.Licence
 {
@@ -636,7 +637,7 @@ namespace DLMS_DataAccess.Licence
             return licenceClassId;
         }
 
-        public static bool GetInternationalLicenceDataById(int id, ref int localLicenceId, ref string nationalNo, 
+        public static bool GetInternationalLicenceDataById(int id, ref int localLicenceId, ref string nationalNo,
             ref string gender, ref DateTime issueDate, ref int applicationId, ref bool isActive,
             ref DateTime dateOfBirth, ref int driverId, ref DateTime expirationDate, ref string imagePath, ref string fullName)
         {
@@ -739,6 +740,42 @@ namespace DLMS_DataAccess.Licence
                 connection.Close();
             }
             return (rowsAffected > 0);
+        }
+
+        public static int DetainLicence(int licenceId, DateTime detainDate, decimal fineFee, int createdByUserId,
+            bool isReleased)
+        {
+            int detainId = -1;
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = @"INSERT INTO DetainedLicenses (LicenseID, DetainDate, FineFees, CreatedByUserID,
+                            IsReleased)
+                            VALUES (@LicenseID, @DetainDate, @FineFees, @CreatedByUserID, @IsReleased);
+                            SELECT SCOPE_IDENTITY();";
+
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@LicenseID", licenceId);
+            command.Parameters.AddWithValue("@DetainDate", detainDate);
+            command.Parameters.AddWithValue("@FineFees", fineFee);
+            command.Parameters.AddWithValue("@CreatedByUserID", createdByUserId);
+            command.Parameters.AddWithValue("@IsReleased", isReleased);
+
+            try
+            {
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null && int.TryParse(result.ToString(), out int insertedID))
+                {
+                    detainId = insertedID;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return detainId;
         }
     }
 }

@@ -46,6 +46,7 @@
     <Compile Include="clsDataAccessSettings.cs" />
     <Compile Include="CountryData.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="Licence\DetainedLicenceData.cs" />
     <Compile Include="Licence\LicenceClassData.cs" />
     <Compile Include="Application\LocalDLApplicationData.cs" />
     <Compile Include="Licence\LicenceData.cs" />
