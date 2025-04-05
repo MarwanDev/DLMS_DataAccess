@@ -72,7 +72,7 @@ namespace DLMS_DataAccess.Licence
         {
             bool isFound = false;
             SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-            string query = "SELECT * FROM DetainedLicence \n" +
+            string query = "SELECT * FROM DetainedLicenses \n" +
                 "WHERE DetainID = @DetainID";
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@DetainID", id);
@@ -365,6 +365,41 @@ namespace DLMS_DataAccess.Licence
             }
 
             return dt;
+        }
+
+        public static int GetPersonIdByDetainLicenceId(int detainId)
+        {
+            int personId = 0;
+            DataTable dt = new DataTable();
+            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            string query = "SELECT People.PersonID\r\n  " +
+                "FROM [dvld].[dbo].[DetainedLicenses]\r\n  " +
+                "join Licenses on DetainedLicenses.LicenseID = Licenses.LicenseID\r\n  " +
+                "join Drivers on Drivers.DriverID = Licenses.DriverID\r\n  " +
+                "join People on People.PersonID = Drivers.PersonID\r\n  " +
+                $"WHERE DetainedLicenses.DetainID = {detainId}\r\n";
+            SqlCommand command = new SqlCommand(query, connection);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    dt.Load(reader);
+                    personId = (int)(dt.Rows[0][0] ?? null);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return personId;
         }
     }
 }
