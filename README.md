@@ -25,9 +25,9 @@ This solution follows a **3-tier architecture**:
 
 | Layer | Description | Repo |
 |-------|-------------|------|
-| **Presentation Layer** | UI & user interaction (Windows Forms) | **You are here** |
+| **Presentation Layer** | UI & user interaction (Windows Forms) | [DLMS_Business](https://github.com/MarwanDev/DLMS) |
 | **Business Layer** | Application logic & service layer | [DLMS_Business](https://github.com/MarwanDev/DLMS_Business) |
-| **Data Access Layer** | Database interactions using ADO.NET | [DLMS_DataAccess](https://github.com/MarwanDev/DLMS_DataAccess) |
+| **Data Access Layer** | Database interactions using ADO.NET | **You are here** |
 
 ---
 
