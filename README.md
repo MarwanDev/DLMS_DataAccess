@@ -3,9 +3,9 @@
 **DLMS** is a 3-tier Windows Forms application built with **C# .NET** and **SQL Server**, designed to manage and streamline all aspects of driving licence processing. It handles everything from applicant registration to test management and licence history tracking.
 
 This solution follows a **3-tier architecture**:
-1. **Presentation Layer** – `DLMS` (https://github.com/your-username/DLMS)
+1. **Presentation Layer** – [`DLMS`](https://github.com/your-username/DLMS)
 2. **Business Logic Layer** – [`DLMS_Business`](https://github.com/your-username/DLMS_Business)
-3. **Data Access Layer** – [`DLMS_DataAccess`](this repo)
+3. **Data Access Layer** – `DLMS_DataAccess` (this repo)
 
 ---
 
